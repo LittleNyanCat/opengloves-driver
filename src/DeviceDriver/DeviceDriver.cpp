@@ -1,8 +1,12 @@
 #include "DeviceDriver/DeviceDriver.h"
+#include "Util/Quaternion.h"
 
 #include <utility>
 
 #include "DriverLog.h"
+
+// dirty hack alert!
+vr::HmdQuaternion_t gyro = {0, 0, 0, 0};
 
 DeviceDriver::DeviceDriver(
     std::unique_ptr<CommunicationManager> communicationManager,
@@ -72,7 +76,7 @@ void* DeviceDriver::GetComponent(const char* pchComponentNameAndVersion) {
 }
 
 vr::DriverPose_t DeviceDriver::GetPose() {
-  if (hasActivated_) return controllerPose_->UpdatePose();
+  if (hasActivated_) return controllerPose_->UpdatePose(gyro);
 
   return vr::DriverPose_t{0};
 }
@@ -87,7 +91,7 @@ bool DeviceDriver::IsActive() {
 
 void DeviceDriver::PoseUpdateThread() {
   while (hasActivated_) {
-    vr::DriverPose_t pose = controllerPose_->UpdatePose();
+    vr::DriverPose_t pose = controllerPose_->UpdatePose(gyro);
     vr::VRServerDriverHost()->TrackedDevicePoseUpdated(driverId_, pose, sizeof(vr::DriverPose_t));
 
     std::this_thread::sleep_for(std::chrono::milliseconds(2));
@@ -115,6 +119,17 @@ void DeviceDriver::StartDevice() {
       vr::VRDriverInput()->UpdateSkeletonComponent(skeletalComponentHandle_, vr::VRSkeletalMotionRange_WithController, handTransforms_, NUM_BONES);
 
       HandleInput(data);
+
+      char array[50];
+      sprintf(array, "1: W:%f X:%f Y:%f Z:%f", data.gyro[0], data.gyro[1], data.gyro[2], data.gyro[3]);
+      DriverLog(array);
+
+      gyro = {data.gyro[0], data.gyro[1], data.gyro[2], data.gyro[3]};
+      gyro = QuaternionUnit(gyro);
+      
+      char array2[50];
+      sprintf(array2, "2: W:%f X:%f Y:%f Z:%f", gyro.w, gyro.x, gyro.y, gyro.z);
+      DriverLog(array2);
 
       if (configuration_.poseConfiguration.calibrationButtonEnabled) {
         if (data.calibrate) {

@@ -17,7 +17,7 @@ class ControllerPose {
   ControllerPose(vr::ETrackedControllerRole shadowDeviceOfRole, std::string thisDeviceManufacturer, VRPoseConfiguration poseConfiguration);
   ~ControllerPose();
 
-  vr::DriverPose_t UpdatePose() const;
+  vr::DriverPose_t UpdatePose(vr::HmdQuaternion_t gyro1) const;
 
   void StartCalibration(CalibrationMethod method) const;
 

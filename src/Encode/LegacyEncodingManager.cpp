@@ -42,8 +42,12 @@ VRInputData LegacyEncodingManager::Decode(const std::string& input) {
   const float joyX = 2 * tokens[static_cast<int>(VRCommDataLegacyEncodingPosition::JoyX)] / maxAnalogValue_ - 1;
   const float joyY = 2 * tokens[static_cast<int>(VRCommDataLegacyEncodingPosition::JoyY)] / maxAnalogValue_ - 1;
 
+  std::array<float, 4> gyro = {0.0f, 0.0f, 0.0f, 0.0f};
+  //too lazy to implement gyro on legacy lol
+
   VRInputData inputData(
       flexion,
+      gyro,
       joyX,
       joyY,
       tokens[static_cast<int>(VRCommDataLegacyEncodingPosition::JoyBtn)] == 1,

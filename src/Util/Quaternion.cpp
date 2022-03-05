@@ -160,3 +160,25 @@ vr::HmdVector3_t QuaternionToEuler(const vr::HmdQuaternion_t& q) {
 
   return result;
 }
+
+vr::HmdQuaternion_t QuaternionUnit(const vr::HmdQuaternion_t& q) {
+  vr::HmdQuaternion_t result{};
+
+  result.x = q.x / sqrt(q.x * q.x + q.y * q.y + q.z * q.z + q.w * q.w);
+  result.y = q.y / sqrt(q.x * q.x + q.y * q.y + q.z * q.z + q.w * q.w);
+  result.z = q.z / sqrt(q.x * q.x + q.y * q.y + q.z * q.z + q.w * q.w);
+  result.w = q.w / sqrt(q.x * q.x + q.y * q.y + q.z * q.z + q.w * q.w);
+
+  return result;
+}
+
+vr::HmdMatrix34_t OverrideMatrixQuaternion(const vr::HmdMatrix34_t& matrix, const vr::HmdQuaternion_t& q) {
+  const vr::HmdMatrix33_t quatMatrix = QuaternionToMatrix(q);
+  const vr::HmdMatrix34_t result = {{
+      {quatMatrix.m[0][0], quatMatrix.m[0][1], quatMatrix.m[0][2], matrix.m[0][3]},
+      {quatMatrix.m[1][0], quatMatrix.m[1][1], quatMatrix.m[1][2], matrix.m[1][3]},
+      {quatMatrix.m[2][0], quatMatrix.m[2][1], quatMatrix.m[2][2], matrix.m[2][3]},
+  }};
+
+  return result;
+}

@@ -21,10 +21,11 @@ struct VRFFBData {
 struct VRInputData {
   VRInputData()
       : VRInputData(
-            {0.0f, 0.0f, 0.0f, 0.0f, 0.0f}, {0.0f, 0.0f, 0.0f, 0.0f, 0.0f}, 0.0f, 0.0f, false, false, false, false, false, false, false, false){};
+            {0.0f, 0.0f, 0.0f, 0.0f, 0.0f}, {0.0f, 0.0f, 0.0f, 0.0f}, {0.0f, 0.0f, 0.0f, 0.0f, 0.0f}, 0.0f, 0.0f, false, false, false, false, false, false, false, false){};
 
   VRInputData(
       std::array<float, 5> flexion,
+      std::array<float, 4> gyro,
       float joyX,
       float joyY,
       bool joyButton,
@@ -70,6 +71,7 @@ struct VRInputData {
 
   VRInputData(
       std::array<std::array<float, 4>, 5> flexion,
+      std::array<float, 4> gyro,
       std::array<float, 5> splay,
       float joyX,
       float joyY,
@@ -82,6 +84,7 @@ struct VRInputData {
       bool menu,
       bool calibrate)
       : flexion(flexion),
+        gyro(gyro),
         splay(splay),
         joyX(joyX),
         joyY(joyY),
@@ -95,6 +98,7 @@ struct VRInputData {
         calibrate(calibrate) {}
 
   const std::array<std::array<float, 4>, 5> flexion;
+  const std::array<float, 4> gyro = {0.0f, 1.0f, 0.0f, 0.0f};
   const std::array<float, 5> splay = {-2.0f, -2.0f, -2.0f, -2.0f, -2.0f};
   const float joyX;
   const float joyY;

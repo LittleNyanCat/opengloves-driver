@@ -17,13 +17,14 @@ void Calibration::StartCalibration(vr::DriverPose_t maintainPose, const Calibrat
   isCalibrating_ = true;
 }
 
-VRPoseConfiguration Calibration::CompleteCalibration(
-    const vr::TrackedDevicePose_t controllerPose, VRPoseConfiguration poseConfiguration, const bool isRightHand, const CalibrationMethod method) {
+VRPoseConfiguration Calibration::CompleteCalibration(const vr::TrackedDevicePose_t controllerPose, VRPoseConfiguration poseConfiguration, const bool isRightHand, const CalibrationMethod method, vr::HmdQuaternion_t gyro) {
   if (calibratingMethod_ != method) return poseConfiguration;
 
   isCalibrating_ = false;
   // get the matrix that represents the position of the controller that we are shadowing
-  const vr::HmdMatrix34_t controllerMatrix = controllerPose.mDeviceToAbsoluteTracking;
+  //const vr::HmdMatrix34_t controllerMatrix = controllerPose.mDeviceToAbsoluteTracking;
+
+  const vr::HmdMatrix34_t controllerMatrix = OverrideMatrixQuaternion(controllerPose.mDeviceToAbsoluteTracking, gyro);
 
   const vr::HmdQuaternion_t controllerQuat = GetRotation(controllerMatrix);
   const vr::HmdQuaternion_t handQuat = maintainPose_.qRotation;

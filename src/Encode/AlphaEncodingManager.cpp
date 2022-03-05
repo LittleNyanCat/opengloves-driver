@@ -52,6 +52,11 @@ static enum class VRCommDataAlphaEncodingKey : int {
   BtnMenu,
   BtnCalib,
 
+  GyroW,
+  GyroX,
+  GyroY,
+  GyroZ,
+
   Null,
 };
 
@@ -103,6 +108,12 @@ static const std::map<std::string, VRCommDataAlphaEncodingKey> VRCommDataAlphaEn
     {"M", VRCommDataAlphaEncodingKey::GesPinch},  // pinch gesture (boolean)
     {"N", VRCommDataAlphaEncodingKey::BtnMenu},   // system button pressed (opens SteamVR menu)
     {"O", VRCommDataAlphaEncodingKey::BtnCalib},  // calibration button
+
+    {"W", VRCommDataAlphaEncodingKey::GyroW},  // gyro w
+    {"X", VRCommDataAlphaEncodingKey::GyroX},  // gyro x
+    {"Y", VRCommDataAlphaEncodingKey::GyroY},  // gyro y
+    {"Z", VRCommDataAlphaEncodingKey::GyroZ},  // gyro z
+
     {"", VRCommDataAlphaEncodingKey::Null},       // Junk key
 };
 
@@ -204,8 +215,23 @@ VRInputData AlphaEncodingManager::Decode(const std::string& input) {
   if (inputMap.find(VRCommDataAlphaEncodingKey::JoyY) != inputMap.end())
     joyY = 2 * std::stof(inputMap.at(VRCommDataAlphaEncodingKey::JoyY)) / maxAnalogValue_ - 1;
 
+  std::array<float, 4> gyro = {0.0f, 0.0f, 0.0f, 0.0f};
+  #define GYRO_PRECISION 1000
+  
+  // gyro stuff
+  if (inputMap.find(VRCommDataAlphaEncodingKey::GyroW) != inputMap.end())
+    gyro[0] = (std::stof(inputMap.at(VRCommDataAlphaEncodingKey::GyroW)) - (GYRO_PRECISION * 10)) / GYRO_PRECISION;
+  if (inputMap.find(VRCommDataAlphaEncodingKey::GyroX) != inputMap.end())
+    gyro[1] = (std::stof(inputMap.at(VRCommDataAlphaEncodingKey::GyroX)) - (GYRO_PRECISION * 10)) / GYRO_PRECISION;
+  if (inputMap.find(VRCommDataAlphaEncodingKey::GyroY) != inputMap.end()) 
+    gyro[2] = (std::stof(inputMap.at(VRCommDataAlphaEncodingKey::GyroY)) - (GYRO_PRECISION * 10)) / GYRO_PRECISION;
+  if (inputMap.find(VRCommDataAlphaEncodingKey::GyroZ) != inputMap.end())
+    gyro[3] = (std::stof(inputMap.at(VRCommDataAlphaEncodingKey::GyroZ)) - (GYRO_PRECISION * 10)) / GYRO_PRECISION;
+  
+
   VRInputData inputData(
       jointFlexion,
+      gyro,
       splay,
       joyX,
       joyY,

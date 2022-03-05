@@ -26,3 +26,7 @@ vr::HmdMatrix33_t QuaternionToMatrix(const vr::HmdQuaternion_t& q);
 vr::HmdQuaternion_t QuatConjugate(const vr::HmdQuaternion_t& q);
 
 vr::HmdVector3_t QuaternionToEuler(const vr::HmdQuaternion_t& q);
+
+vr::HmdQuaternion_t QuaternionUnit(const vr::HmdQuaternion_t& q);
+
+vr::HmdMatrix34_t OverrideMatrixQuaternion(const vr::HmdMatrix34_t& matrix, const vr::HmdQuaternion_t& q);

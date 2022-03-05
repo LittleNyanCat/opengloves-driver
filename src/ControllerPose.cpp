@@ -2,7 +2,8 @@
 
 #include "DriverLog.h"
 #include "Util/Quaternion.h"
-
+// dirty hack alert!
+vr::HmdQuaternion_t gyro2 = {0, 0, 0, 0};
 ControllerPose::ControllerPose(
     vr::ETrackedControllerRole shadowDeviceOfRole, std::string thisDeviceManufacturer, VRPoseConfiguration poseConfiguration)
     : poseConfiguration_(poseConfiguration), shadowDeviceOfRole_(shadowDeviceOfRole), thisDeviceManufacturer_(std::move(thisDeviceManufacturer)) {
@@ -44,9 +45,10 @@ vr::TrackedDevicePose_t ControllerPose::GetControllerPose() const {
   return trackedDevicePoses[shadowControllerId_];
 }
 
-vr::DriverPose_t ControllerPose::UpdatePose() const {
+vr::DriverPose_t ControllerPose::UpdatePose(vr::HmdQuaternion_t gyro1) const {
   if (calibration_->IsCalibrating()) return calibration_->GetMaintainPose();
 
+  gyro2 = gyro1;
   vr::DriverPose_t newPose = {0};
   newPose.qWorldFromDriverRotation.w = 1;
   newPose.qDriverFromHeadRotation.w = 1;
@@ -55,7 +57,9 @@ vr::DriverPose_t ControllerPose::UpdatePose() const {
     const vr::TrackedDevicePose_t controllerPose = GetControllerPose();
     if (controllerPose.bPoseIsValid) {
       // get the matrix that represents the position of the controller that we are shadowing
-      const vr::HmdMatrix34_t controllerMatrix = controllerPose.mDeviceToAbsoluteTracking;
+      //const vr::HmdMatrix34_t controllerMatrix = controllerPose.mDeviceToAbsoluteTracking;
+      //dirty hack alert
+      const vr::HmdMatrix34_t controllerMatrix = OverrideMatrixQuaternion(controllerPose.mDeviceToAbsoluteTracking, gyro2);
 
       // get only the rotation (3x3 matrix), as the 3x4 matrix also includes position
       const vr::HmdMatrix33_t controllerRotationMatrix = GetRotationMatrix(controllerMatrix);
@@ -115,7 +119,7 @@ vr::DriverPose_t ControllerPose::UpdatePose() const {
 }
 
 void ControllerPose::StartCalibration(const CalibrationMethod method) const {
-  calibration_->StartCalibration(UpdatePose(), method);
+  calibration_->StartCalibration(UpdatePose(gyro2), method);
 }
 
 void ControllerPose::CompleteCalibration(const CalibrationMethod method) {
@@ -124,7 +128,7 @@ void ControllerPose::CompleteCalibration(const CalibrationMethod method) {
     CancelCalibration(method);
     return;
   }
-  poseConfiguration_ = calibration_->CompleteCalibration(GetControllerPose(), poseConfiguration_, IsRightHand(), method);
+  poseConfiguration_ = calibration_->CompleteCalibration(GetControllerPose(), poseConfiguration_, IsRightHand(), method,gyro2);
 }
 
 void ControllerPose::CancelCalibration(const CalibrationMethod method) const {
