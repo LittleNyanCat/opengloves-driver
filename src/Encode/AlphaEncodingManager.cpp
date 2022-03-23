@@ -145,7 +145,7 @@ static std::map<VRCommDataAlphaEncodingKey, std::string> ParseInputToMap(const s
       }
 
       std::string value = "";
-      while (str[i] >= 0 && str[i] <= 255 && isdigit(str[i]) && i < str.length()) {
+      while (str[i] >= 0 && str[i] <= 255 && (isdigit(str[i]) || str[i] == '-' || str[i] == '.') && i < str.length()) {
         value += str[i];
         i++;
       }
@@ -216,17 +216,16 @@ VRInputData AlphaEncodingManager::Decode(const std::string& input) {
     joyY = 2 * std::stof(inputMap.at(VRCommDataAlphaEncodingKey::JoyY)) / maxAnalogValue_ - 1;
 
   std::array<float, 4> gyro = {0.0f, 0.0f, 0.0f, 0.0f};
-  #define GYRO_PRECISION 1000
   
   // gyro stuff
   if (inputMap.find(VRCommDataAlphaEncodingKey::GyroW) != inputMap.end())
-    gyro[0] = (std::stof(inputMap.at(VRCommDataAlphaEncodingKey::GyroW)) - (GYRO_PRECISION * 10)) / GYRO_PRECISION;
+    gyro[0] = std::stof(inputMap.at(VRCommDataAlphaEncodingKey::GyroW));
   if (inputMap.find(VRCommDataAlphaEncodingKey::GyroX) != inputMap.end())
-    gyro[1] = (std::stof(inputMap.at(VRCommDataAlphaEncodingKey::GyroX)) - (GYRO_PRECISION * 10)) / GYRO_PRECISION;
+    gyro[1] = std::stof(inputMap.at(VRCommDataAlphaEncodingKey::GyroX));
   if (inputMap.find(VRCommDataAlphaEncodingKey::GyroY) != inputMap.end()) 
-    gyro[2] = (std::stof(inputMap.at(VRCommDataAlphaEncodingKey::GyroY)) - (GYRO_PRECISION * 10)) / GYRO_PRECISION;
+    gyro[2] = std::stof(inputMap.at(VRCommDataAlphaEncodingKey::GyroY));
   if (inputMap.find(VRCommDataAlphaEncodingKey::GyroZ) != inputMap.end())
-    gyro[3] = (std::stof(inputMap.at(VRCommDataAlphaEncodingKey::GyroZ)) - (GYRO_PRECISION * 10)) / GYRO_PRECISION;
+    gyro[3] = std::stof(inputMap.at(VRCommDataAlphaEncodingKey::GyroZ));
   
 
   VRInputData inputData(
